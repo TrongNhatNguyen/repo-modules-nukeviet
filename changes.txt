@@ -1,0 +1,14 @@
+- người thực hiện: nguyen trong nhat
+- email: nguyentrongnhat230600@gmail.com
+
+- tên database: nukeviet4
+- kiểu dl: utf8mb4_unicode_ci
+- username db: root
+- pass: 
+
+- tên module: photo-album
+/-------------------------------
+- thêm xoá sửa album ảnh
+- upload ảnh album
+- thêm xoá sửa chuyên mục cha
+- thêm xoá sửa chuyên mục con
