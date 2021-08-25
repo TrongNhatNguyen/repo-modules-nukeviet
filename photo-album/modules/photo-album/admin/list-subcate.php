@@ -123,18 +123,66 @@ if($get_data['id_edit'] && $nv_Request->isset_request('action_edit', 'get')) {
     }
 }
 
+// thay đổi thứ tự (weight):
+if($get_data['id_edit'] && $nv_Request->isset_request('change_weight', 'get')) {
+    $new_weight = (int) $nv_Request->get_int('new_weight', 'get', 0);
+    
+    if ($new_weight > 0) {
+        $query_select = $db_connect->getBy("tbl_subcates", "id != " . $get_data['id_edit'], ["field_get" => "id, weight", "order_by" => "weight ASC"]);
+        
+        $weight = 0;
+        while ($list_subcate = $query_select->fetch()) {
+            ++$weight;
+            if ($weight == $new_weight) {
+                ++$weight;
+            }
+            // cập nhật các weight còn lại
+            try {
+                $query_update_weight = $db_connect->updateWeight("tbl_subcates", $list_subcate['id'], $weight);
+                $query_update_weight->execute();
+            } catch (\PDOException $ex) {
+                print_r($ex->getMessage());
+                die();
+            }
+        }
+        // cập nhật weight đang chọn
+        try {
+            $query_update_new_weight = $db_connect->updateWeight("tbl_subcates", $get_data['id_edit'], $new_weight);
+            $query_update_new_weight->execute();
+        } catch (\PDOException $ex) {
+            print_r($ex->getMessage());
+            die();
+        }
+    }
+}
+
+// thay đổi trạng thái ẩn hiện:
+if($get_data['id_edit'] && $nv_Request->isset_request('change_active', 'get')) {
+    $new_status = (int) $nv_Request->get_int('new_status', 'get', 0);
+
+    if ($new_status == 0 || $new_status == 1) {
+        try {
+            $query_update_active = $db_connect->updateActive("tbl_subcates", $get_data['id_edit'], $new_status);
+            $query_update_active->execute();
+        } catch (\PDOException $ex) {
+            print_r($ex->getMessage());
+            die();
+        }
+    }
+}
+
 // hiển thị bảng:
 try {
     // hiển thị subcate theo cate:
     if ($get_data['cate_id'] && $nv_Request->isset_request('change_cate', 'get')) {
         $totals = $db_connect->countNumRows("tbl_subcates", "cate_id = " . $get_data['cate_id']);
-        $query_select = $db_connect->getBy('tbl_subcates', 'cate_id = ' . $get_data['cate_id'], ["limit" => $perpage, "offset" => ($page - 1) * $perpage]);
+        $query_select = $db_connect->getBy('tbl_subcates', 'cate_id = ' . $get_data['cate_id'], ["order_by" => "weight ASC", "limit" => $perpage, "offset" => ($page - 1) * $perpage]);
     } else {
-        $query_select = $db_connect->getAll("tbl_subcates", ["limit" => $perpage, "offset" => ($page - 1) * $perpage]);
+        $query_select = $db_connect->getAll("tbl_subcates", ["order_by" => "weight ASC", "limit" => $perpage, "offset" => ($page - 1) * $perpage]);
     }
 
     while ($subcate = $query_select->fetch()) {
-        $subcate['active'] = ($subcate['active'] == 1) ? $lang_module['active_1'] : $lang_module['active_0'];
+        $subcate['active'] = ($subcate['active'] == 1) ? 'checked' : '';
         $subcate['created_at'] = gmdate("d-m-Y\ H:i:s", $subcate['created_at']);
         $subcate['updated_at'] = ($subcate['updated_at'] != 0) ? gmdate("d-m-Y\ H:i:s", $subcate['updated_at']) : '';
 
@@ -183,10 +231,16 @@ if ($list_cate) {
     }
 }
 if ($list_subcate) {
-    $i = ($page - 1) * $perpage;
     $url = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=";
+    
     foreach ($list_subcate as $key => $subcate) {
-        $subcate['stt'] = $i + 1;
+        // cột stt:
+        for ($i=1; $i <= $totals; $i++) { 
+            $xtpl->assign('STT', $i);
+            $xtpl->assign('STT_SELECTED', ($i == $subcate['weight']) ? "selected" : "");
+            $xtpl->parse('main.loop.weight');
+        }
+
         $subcate['url_edit'] = $url . "list-subcate&amp;action_edit=true&amp;id=" . $subcate['id'];
         $xtpl->assign('SUBCATE', $subcate);
         $xtpl->parse('main.loop');

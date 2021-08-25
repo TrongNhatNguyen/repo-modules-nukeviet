@@ -19,9 +19,20 @@
                     <tbody>
                         <!-- BEGIN: loop -->
                         <tr>
-                            <td class="text-center align-middle">{CATE.stt}</td>
+                            <td class="text-center align-middle">
+                                <select name="weight" class="form-control weight_{CATE.id}" onchange="change_weight({CATE.id});">
+                                    <!-- BEGIN: weight -->
+                                    <option value="{STT}" {STT_SELECTED}>{STT}</option>
+                                    <!-- END: weight -->
+                                </select>
+                            </td>
                             <td class="w250">{CATE.name}</td>
-                            <td class="text-center align-middle">{CATE.active}</td>
+                            <td>
+                                <label class="switch">
+                                    <input type="checkbox" class="active_input_{CATE.id}" name="check_active" {CATE.active} onchange="change_active({CATE.id});"/>
+                                    <span class="slider round"></span>
+                                </label>
+                            </td>
                             <td>{CATE.created_at} <br/> {CATE.updated_at}</td>
                             <td class="text-center align-middle">
                                 <a class="btn btn-primary btn-sm btn_edit" href="{CATE.url_edit}">
@@ -88,7 +99,7 @@
     position: relative;
     display: inline-block;
     top: -3px;
-    left: 5px;
+    left: 2px;
     width: 52px;
     height: 25px;
     }
@@ -154,6 +165,28 @@
         });
     });
 
+    // thay đổi thứ tự:
+    function change_weight(cate_id) {
+        var new_weight = $('.weight_' + cate_id). val();
+        window.location.replace(script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable
+                                            + '=list-cate&nocache=' + new Date().getTime()
+                                            + '&notifyAlert=true&change_weight=true&id=' + cate_id
+                                            + '&new_weight=' + new_weight);
+    }
+
+    // thay đổi active:
+    function change_active(cate_id) {
+        var new_status = 0;
+        if ($('.active_input_' + cate_id).is(":checked")) {
+            new_status = 1;
+        }
+
+        window.location.replace(script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable
+                                            + '=list-cate&nocache=' + new Date().getTime()
+                                            + '&change_active=true&id=' + cate_id
+                                            + '&new_status=' + new_status);
+    }
+
     // thông báo xoá:
     function notifyAlert(cate_id) {
         Swal.fire({
@@ -175,7 +208,7 @@
                     // xử lí:
                     window.location.replace(script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable
                                             + '=list-cate&nocache=' + new Date().getTime()
-                                            + '&notifyAlert=true&id=' + cate_id + '&action_del=true'
+                                            + '&notifyAlert=true&action_del=true&id=' + cate_id
                                             + '&checksess=' + cate_id + '{NV_CHECK_SESSION}');
                 })
             }

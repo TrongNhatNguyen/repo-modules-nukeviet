@@ -35,7 +35,7 @@ class DBConnect
         $default = [
             "field_get" => "*",
             "avtive" => null,
-            "order_by" => "weight DESC",
+            "order_by" => "id DESC",
             "limit" => null,
             "offset" => 0,
         ];
@@ -44,7 +44,9 @@ class DBConnect
 
         $this->db->sqlreset()->select($args_sql['field_get'])->from($this->name_prefix_lang_module . $table_name);
         if ($args_sql['active']) {$this->db->where("active = " . $args_sql['active']);}
-        $this->db->order($args_sql['order_by'])->limit($args_sql['limit'])->offset($args_sql['offset']);
+        if ($args_sql['order_by']) {$this->db->order($args_sql['order_by']);}
+        if ($args_sql['limit']) {$this->db->limit($args_sql['limit']);}
+        if ($args_sql['offset']) {$this->db->offset($args_sql['offset']);}
 
         $this->sql = $this->db->sql();
         return $this->db->query($this->sql);
@@ -55,7 +57,7 @@ class DBConnect
         $default = [
             "field_get" => "*",
             "active" => null,
-            "order_by" => "weight DESC",
+            "order_by" => "id DESC",
             "limit" => null,
             "offset" => 0,
         ];
@@ -65,7 +67,9 @@ class DBConnect
 
         $this->db->sqlreset()->select($args_sql['field_get'])->from($this->name_prefix_lang_module . $table_name);
         $this->db->where("(" . $field_set . ")" . $active_sql);
-        $this->db->order($args_sql['order_by'])->limit($args_sql['limit'])->offset($args_sql['offset']);
+        if ($args_sql['order_by']) {$this->db->order($args_sql['order_by']);}
+        if ($args_sql['limit']) {$this->db->limit($args_sql['limit']);}
+        if ($args_sql['offset']) {$this->db->offset($args_sql['offset']);}
 
         $this->sql = $this->db->sql();
         return $this->db->query($this->sql);
@@ -96,13 +100,44 @@ class DBConnect
         }
     }
 
+    function getMaxValue($table_name, string $field_max, string $field_set = null)
+    {
+        try {
+            $this->sql = "SELECT MAX($field_max) FROM `" . $this->name_prefix_lang_module . $table_name . "`";
+            if ($field_set) {$this->sql .= "WHERE (" . $field_set . ");";}
+
+            return $this->db->query($this->sql)->fetchColumn();
+        } catch (\PDOException $ex) {
+            print_r($ex->getMessage());
+            die();
+        }
+    }
+
+    function updateActive($table_name, int $id_edit, int $active)
+    {
+        $this->sql = "UPDATE`" . $this->name_prefix_lang_module . $table_name . "` SET
+                        `active`=:active WHERE `id` = " . $id_edit . ";";
+        $stmt = $this->db->prepare($this->sql);
+        $stmt->bindValue('active', $active);
+        return $stmt;
+    }
+
+    function updateWeight($table_name, int $id_edit, int $weight)
+    {
+        $this->sql = "UPDATE`" . $this->name_prefix_lang_module . $table_name . "` SET
+                        `weight`=:weight WHERE `id` = " . $id_edit . ";";
+        $stmt = $this->db->prepare($this->sql);
+        $stmt->bindValue('weight', $weight);
+        return $stmt;
+    }
+
     //========================================
     // ALBUM TABLE connect
     //========================================
     //--insert
     function insertAlbum($name, $alias, $description = null, $cate_id, $subcate_id, $active = 0, $created_at = NV_CURRENTTIME)
     {
-        $last_row = $this->getLastRows($this->tb_ablum)->fetch();
+        $max_weight = $this->getMaxValue($this->tb_album, "weight");
         
         $this->sql = "INSERT INTO `" . $this->name_prefix_lang_module . $this->tb_ablum . "` (
                         `id`,
@@ -122,7 +157,7 @@ class DBConnect
         $stmt->bindParam('description', $description);
         $stmt->bindValue('cate_id', $cate_id);
         $stmt->bindValue('subcate_id', $subcate_id);
-        $stmt->bindValue('weight', $last_row['weight'] + 1);
+        $stmt->bindValue('weight', $max_weight + 1);
         $stmt->bindValue('active', $active);
         $stmt->bindValue('created_at', $created_at);
         return $stmt;
@@ -217,7 +252,7 @@ class DBConnect
     //-- insert:
     function insertCate($name, $alias, $active = 0, $created_at = NV_CURRENTTIME)
     {
-        $last_row = $this->getLastRows($this->tb_cate)->fetch();
+        $max_weight = $this->getMaxValue($this->tb_cate, "weight");
         
         $this->sql = "INSERT INTO `" . $this->name_prefix_lang_module . $this->tb_cate . "` (
                         `id`,
@@ -231,7 +266,7 @@ class DBConnect
         $stmt = $this->db->prepare($this->sql);
         $stmt->bindParam('name', $name);
         $stmt->bindParam('alias', $alias);
-        $stmt->bindValue('weight', $last_row['weight'] + 1);
+        $stmt->bindValue('weight', $max_weight + 1);
         $stmt->bindValue('active', $active);
         $stmt->bindValue('created_at', $created_at);
         return $stmt;
@@ -269,8 +304,8 @@ class DBConnect
     //-- insert:
     function insertSubcate($name, $alias, $cate_id, $active = 0, $created_at = NV_CURRENTTIME)
     {
-        $last_row = $this->getLastRows($this->tb_subcate)->fetch();
-        
+        $max_weight = $this->getMaxValue($this->tb_subcate, "weight");
+
         $this->sql = "INSERT INTO `" . $this->name_prefix_lang_module . $this->tb_subcate . "` (
                         `id`,
                         `name`,
@@ -285,7 +320,7 @@ class DBConnect
         $stmt->bindParam('name', $name);
         $stmt->bindParam('alias', $alias);
         $stmt->bindValue('cate_id', $cate_id);
-        $stmt->bindValue('weight', $last_row['weight'] + 1);
+        $stmt->bindValue('weight', $max_weight + 1);
         $stmt->bindValue('active', $active);
         $stmt->bindValue('created_at', $created_at);
         return $stmt;

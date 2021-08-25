@@ -29,9 +29,20 @@
                     <tbody>
                         <!-- BEGIN: loop -->
                         <tr>
-                            <td class="text-center align-middle">{SUBCATE.stt}</td>
+                            <td class="text-center align-middle">
+                                <select name="weight" class="form-control weight_{SUBCATE.id}" onchange="change_weight({SUBCATE.id});">
+                                    <!-- BEGIN: weight -->
+                                    <option value="{STT}" {STT_SELECTED}>{STT}</option>
+                                    <!-- END: weight -->
+                                </select>
+                            </td>
                             <td class="w200">{SUBCATE.name}</td>
-                            <td class="text-center align-middle">{SUBCATE.active}</td>
+                            <td>
+                                <label class="switch">
+                                    <input type="checkbox" class="active_input_{SUBCATE.id}" name="check_active" {SUBCATE.active} onchange="change_active({SUBCATE.id});"/>
+                                    <span class="slider round"></span>
+                                </label>
+                            </td>
                             <td>{SUBCATE.created_at} <br/> {SUBCATE.updated_at}</td>
                             <td class="text-center align-middle">
                                 <a class="btn btn-primary btn-sm btn_edit" href="{SUBCATE.url_edit}">
@@ -181,8 +192,30 @@
             window.location.replace(script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable
                     + '=list-subcate&nocache=' + new Date().getTime()
                     + '&change_cate=true&cate_id=' + cate_id);
-        })
+        });
     });
+
+    // thay đổi active:
+    function change_active(subcate_id) {
+        var new_status = 0;
+        if ($('.active_input_' + subcate_id).is(":checked")) {
+            new_status = 1;
+        }
+
+        window.location.replace(script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable
+                                            + '=list-subcate&nocache=' + new Date().getTime()
+                                            + '&change_active=true&id=' + subcate_id
+                                            + '&new_status=' + new_status);
+    }
+
+    // thay đổi thứ tự:
+    function change_weight(subcate_id) {
+        var new_weight = $('.weight_' + subcate_id).val();
+        window.location.replace(script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable
+                                            + '=list-subcate&nocache=' + new Date().getTime()
+                                            + '&change_weight=true&id=' + subcate_id
+                                            + '&new_weight=' + new_weight);
+    }
 
     // thông báo xoá:
     function notifyAlert(subcate_id) {

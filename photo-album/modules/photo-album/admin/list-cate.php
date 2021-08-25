@@ -114,11 +114,59 @@ if($get_data['id_edit'] && $nv_Request->isset_request('action_edit', 'get')) {
     }
 }
 
-// hiển thị bảng:
+// thay đổi thứ tự (weight):
+if($get_data['id_edit'] && $nv_Request->isset_request('change_weight', 'get')) {
+    $new_weight = (int) $nv_Request->get_int('new_weight', 'get', 0);
+    
+    if ($new_weight > 0) {
+        $query_select = $db_connect->getBy("tbl_cates", "id != " . $get_data['id_edit'], ["field_get" => "id, weight", "order_by" => "weight ASC"]);
+        
+        $weight = 0;
+        while ($list_cate = $query_select->fetch()) {
+            ++$weight;
+            if ($weight == $new_weight) {
+                ++$weight;
+            }
+            // cập nhật các weight còn lại
+            try {
+                $query_update_weight = $db_connect->updateWeight("tbl_cates", $list_cate['id'], $weight);
+                $query_update_weight->execute();
+            } catch (\PDOException $ex) {
+                print_r($ex->getMessage());
+                die();
+            }
+        }
+        // cập nhật weight đang chọn
+        try {
+            $query_update_new_weight = $db_connect->updateWeight("tbl_cates", $get_data['id_edit'], $new_weight);
+            $query_update_new_weight->execute();
+        } catch (\PDOException $ex) {
+            print_r($ex->getMessage());
+            die();
+        }
+    }
+}
+
+// thay đổi trạng thái ẩn hiện:
+if($get_data['id_edit'] && $nv_Request->isset_request('change_active', 'get')) {
+    $new_status = (int) $nv_Request->get_int('new_status', 'get', 0);
+
+    if ($new_status == 0 || $new_status == 1) {
+        try {
+            $query_update_active = $db_connect->updateActive("tbl_cates", $get_data['id_edit'], $new_status);
+            $query_update_active->execute();
+        } catch (\PDOException $ex) {
+            print_r($ex->getMessage());
+            die();
+        }
+    }
+}
+
+// show bảng:
 try {
-    $query_select = $db_connect->getAll("tbl_cates", ["limit" => $perpage, "offset" => ($page - 1) * $perpage]);
+    $query_select = $db_connect->getAll("tbl_cates", ["order_by" => "weight ASC", "limit" => $perpage, "offset" => ($page - 1) * $perpage]);
     while ($cate = $query_select->fetch()) {
-        $cate['active'] = ($cate['active'] == 1) ? $lang_module['active_1'] : $lang_module['active_0'];
+        $cate['active'] = ($cate['active'] == 1) ? 'checked' : '';
         $cate['created_at'] = gmdate("d-m-Y\ H:i:s", $cate['created_at']);
         $cate['updated_at'] = ($cate['updated_at'] != 0) ? gmdate("d-m-Y\ H:i:s", $cate['updated_at']) : '';
 
@@ -157,14 +205,19 @@ if ($success) {
 
 // bảng:
 if ($list_cate) {
-    $i = ($page - 1) * $perpage;
     $url = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=";
+
     foreach ($list_cate as $key => $cate) {
-        $cate['stt'] = $i + 1;
+        // cột stt:
+        for ($i=1; $i <= $totals; $i++) { 
+            $xtpl->assign('STT', $i);
+            $xtpl->assign('STT_SELECTED', ($i == $cate['weight']) ? "selected" : "");
+            $xtpl->parse('main.loop.weight');
+        }
+
         $cate['url_edit'] = $url . "list-cate&amp;action_edit=true&amp;id=" . $cate['id'];
         $xtpl->assign('CATE', $cate);
         $xtpl->parse('main.loop');
-        $i ++;
     }
 
     // phân trang:

@@ -16,11 +16,22 @@
         <tbody>
             <!-- BEGIN: loop -->
             <tr>
-                <td class="text-center align-middle">{ALBUM.stt}</td>
+                <td class="text-center align-middle">
+                    <select name="weight" class="form-control weight_{ALBUM.id}" onchange="change_weight({ALBUM.id});">
+                        <!-- BEGIN: weight -->
+                        <option value="{STT}" {STT_SELECTED}>{STT}</option>
+                        <!-- END: weight -->
+                    </select>
+                </td>
                 <td class="w150">{ALBUM.name}</td>
-                <td class="w400">{ALBUM.description}</td>
+                <td class="w350">{ALBUM.description}</td>
                 <td class="w150">{ALBUM.subcate.name} <br/> <span style="font-size: 12px; color: rgb(42, 42, 143);">{ALBUM.cate.name}</span></td>
-                <td class="text-center align-middle">{ALBUM.active}</td>
+                <td>
+                    <label class="switch">
+                        <input type="checkbox" class="active_input_{ALBUM.id}" {ALBUM.active} onchange="change_active({ALBUM.id});"/>
+                        <span class="slider round"></span>
+                    </label>
+                </td>
                 <td>{ALBUM.created_at} <br/> {ALBUM.updated_at}</td>
                 <td class="text-center align-middle">
                     <a class="btn btn-primary btn-sm btn_edit" href="{ALBUM.url_edit}">
@@ -42,9 +53,88 @@
     <!-- END: notify -->
 </div>
 
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        top: -3px;
+        left: 1px;
+        width: 52px;
+        height: 25px;
+    }
+
+    .switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 23px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 23px;
+        width: 23px;
+        left: 1px;
+        bottom: 1px;
+        border-radius: 50%;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: #428bca;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #428bca;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+</style>
 
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="text/javascript">
+    // thay đổi thứ tự:
+    function change_weight(album_id) {
+            var new_weight = $('.weight_' + album_id). val();
+            window.location.replace(script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable
+                                                + '=main&nocache=' + new Date().getTime()
+                                                + '&notifyAlert=true&change_weight=true&id=' + album_id
+                                                + '&new_weight=' + new_weight);
+    }
+
+    // thay đổi active:
+    function change_active(album_id) {
+        var new_status = 0;
+        if ($('.active_input_' + album_id).is(":checked")) {
+            new_status = 1;
+        }
+
+        window.location.replace(script_name + '?' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable
+                                            + '=main&nocache=' + new Date().getTime()
+                                            + '&change_active=true&id=' + album_id
+                                            + '&new_status=' + new_status);
+    }
+
+    // thông báo xoá:
     function notifyAlert(album_id) {
         Swal.fire({
             title: 'Bạn Chắc Chứ?',
