@@ -75,7 +75,7 @@
             <!-- END: success -->
 
             <div class="well">
-                <form action="{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&amp;{NV_NAME_VARIABLE}={MODULE_NAME}&amp;{NV_OP_VARIABLE}={OP}" method="POST">
+                <form action="{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&amp;{NV_NAME_VARIABLE}={MODULE_NAME}&amp;{NV_OP_VARIABLE}={OP}" method="POST" class="confirm-reload">
                     <input type="hidden" name="id" value="{FORM_DATA.id}"/>
                     <div class="form-group">
                         <label for="name" class="control-label">{LANG.name} <sup class="required">(*)</sup></label>

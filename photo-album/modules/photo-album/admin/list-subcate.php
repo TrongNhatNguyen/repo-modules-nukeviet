@@ -86,8 +86,18 @@ if ($nv_Request->isset_request('form_submit', 'post')) {
 // xoá:
 if ($nv_Request->isset_request('action_del', 'get')) {
     if ($get_data['id_edit'] > 0 && md5($get_data['id_edit'] . NV_CHECK_SESSION) == md5($get_data['checksess'])) {
+        $subcate_del = $db_connect->getBy("tbl_subcates", "id = " . $get_data['id_edit'])->fetch();
         try {
-            $result = $db_connect->delSubcate($get_data['id_edit']);
+            $db_connect->delSubcate($get_data['id_edit']);
+
+            // cập nhật lại weight:
+            $list_behind = $db_connect->getBy("tbl_subcates", "weight > " . $subcate_del['weight'], ["order_by" => "weight ASC"])->fetchAll();
+            $new_weight = $subcate_del['weight'];
+            foreach ($list_behind as $key => $behind) {
+                $query_update_new_weight = $db_connect->updateWeight("tbl_subcates", $behind['id'], $new_weight);
+                $query_update_new_weight->execute();
+                $new_weight ++;
+            }
         } catch (\PDOException $ex) {
             print_r($ex->getMessage());
             die();
@@ -183,8 +193,8 @@ try {
 
     while ($subcate = $query_select->fetch()) {
         $subcate['active'] = ($subcate['active'] == 1) ? 'checked' : '';
-        $subcate['created_at'] = gmdate("d-m-Y\ H:i:s", $subcate['created_at']);
-        $subcate['updated_at'] = ($subcate['updated_at'] != 0) ? gmdate("d-m-Y\ H:i:s", $subcate['updated_at']) : '';
+        $subcate['created_at'] = date("d-m-Y\ H:i A", $subcate['created_at']);
+        $subcate['updated_at'] = ($subcate['updated_at'] != 0) ? date("d-m-Y\ H:i A", $subcate['updated_at']) : '';
 
         $list_subcate[$subcate['id']] = $subcate;
     }
@@ -248,9 +258,11 @@ if ($list_subcate) {
     }
 
     // phân trang:
-    $paginate = nv_generate_page($url . "list-subcate", $totals, $perpage, $page);
-    $paginate_html = '<div class="clearfix pull-right">' . $paginate . '</div><div class="clearfix"></div>';
-    $xtpl->assign('PAGINATE', $paginate_html);
+    if ($perpage < $totals) {
+        $paginate = nv_generate_page($url . "list-subcate", $totals, $perpage, $page);
+        $paginate_html = '<div class="clearfix pull-right">' . $paginate . '</div><div class="clearfix"></div>';
+        $xtpl->assign('PAGINATE', $paginate_html);
+    }
 } else {
     $notify_empty = '<div class="alert alert-info" role="alert">' . $lang_module['notify_empty'] . '</div>';
     $xtpl->assign('NOTIFY_EMPTY', $notify_empty);

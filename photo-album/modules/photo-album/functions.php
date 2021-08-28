@@ -13,3 +13,15 @@ if (!defined('NV_SYSTEM')) {
 }
 
 define('NV_IS_MOD_PHOTO_ALBUM', true); /// có thay đổi
+
+$allow_func = array(
+    'main',
+    'detail',
+);
+
+//--------------------------
+// khai báo dùng chung:
+//--------------------------
+require_once NV_ROOTDIR . "/modules/" . $module_name . '/db-connect.php';
+require_once NV_ROOTDIR . "/modules/" . $module_name . '/rules.php';
+require_once NV_ROOTDIR . "/modules/" . $module_name . '/helper.php';

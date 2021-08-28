@@ -43,9 +43,11 @@ $lang_module['default_cate_option'] = '-- Chọn chuyên mục --';
 $lang_module['name'] = 'Tiêu đề';
 $lang_module['alias'] = 'Liên kết tĩnh';
 $lang_module['image'] = 'Hình ảnh';
-$lang_module['description'] = 'Nội dung chi tiết';
+$lang_module['highlight'] = 'Là ảnh nổi bật';
+$lang_module['description'] = 'Mô tả';
+$lang_module['content'] = 'Nội dung chi tiết';
 $lang_module['cate'] = 'Chuyên mục gốc';
-$lang_module['subcate'] = 'Chuyên mục thành phần';
+$lang_module['subcate'] = 'CM thành phần';
 $lang_module['active'] = 'Hiển thị';
 $lang_module['submit'] = 'Lưu Lại';
 

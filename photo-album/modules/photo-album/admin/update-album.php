@@ -33,21 +33,13 @@ if ($nv_Request->isset_request('form_submit', 'post')) {
         'name' => $nv_Request->get_title('name', 'post', ''),
         'alias' => $nv_Request->get_title('alias', 'post', ''),
         'image' => $nv_Request->get_title('image', 'post', ''),
-        'description' => $nv_Request->get_editor('description', 'post', NV_ALLOWED_HTML_TAGS),
+        'highlight' => $nv_Request->get_title('check_highlight', 'post', ''),
+        'description' => $nv_Request->get_editor('description', '(no infomation)', NV_ALLOWED_HTML_TAGS),
+        'content' => $nv_Request->get_editor('content', '(no infomation)', NV_ALLOWED_HTML_TAGS),
         'cate_id' => $nv_Request->get_title('cate_id', 'post', ''),
         'subcate_id' => $nv_Request->get_title('subcate_id', 'post', ''),
         'active' => $nv_Request->get_title('check_active', 'post', 1),
     ];
-
-    // upload file:
-    // if (isset($_FILES, $_FILES['imageUpload'], $_FILES['imageUpload']['tmp_name']) && is_uploaded_file($_FILES['imageUpload']['tmp_name'])) {
-    //     // Khởi tạo Class upload
-    //     $upload = new NukeViet\Files\Upload($admin_info['allow_files_type'], $global_config['forbid_extensions'], $global_config['forbid_mimes'], NV_UPLOAD_MAX_FILESIZE, NV_MAX_WIDTH, NV_MAX_HEIGHT);       
-    //     // Thiết lập ngôn ngữ, nếu không có dòng này thì ngôn ngữ trả về toàn tiếng Anh
-    //     $upload->setLanguage($lang_global);
-    //     // Tải file lên server
-    //     $upload_info = $upload->save_file($_FILES['imageUpload'], NV_UPLOADS_REAL_DIR, false, $global_config['nv_auto_resize']);
-    // }
 
     // thêm:
     if (!$form_data['id_edit']) {
@@ -60,6 +52,7 @@ if ($nv_Request->isset_request('form_submit', 'post')) {
                     $form_data['name'],
                     $form_data['alias'],
                     $form_data['description'],
+                    $form_data['content'],
                     $form_data['cate_id'],
                     $form_data['subcate_id'],
                     ($form_data['active'] == 'on') ? 1 : 0
@@ -87,6 +80,7 @@ if ($nv_Request->isset_request('form_submit', 'post')) {
                     $form_data['name'],
                     $form_data['alias'],
                     $form_data['description'],
+                    $form_data['content'],
                     $form_data['cate_id'],
                     $form_data['subcate_id'],
                     ($form_data['active'] == 'on') ? 1 : 0
@@ -103,23 +97,19 @@ if ($nv_Request->isset_request('form_submit', 'post')) {
     }
 
     // insert image path:
-    if ($album_id_insert_image) {
-        // valid:
-        $exist = $rules->insImageRules($form_data['image']);
-        
-        if (!$exist) {
-            try {
-                $query_insert_image = $db_connect->insertImage(
-                    time() . "-" . str_replace("/uploads/photo-album/", "", $form_data['image']),
-                    $form_data['image'],
-                    $album_id_insert_image,
-                    1
-                );
-                $query_insert_image->execute();
-            } catch (\PDOException $ex) {
-                print_r($ex->getMessage());
-                die();
-            }
+    if ($album_id_insert_image && $form_data['image']) {
+        try {
+            $query_insert_image = $db_connect->insertImage(
+                time() . "-" . str_replace("/uploads/photo-album/", "", $form_data['image']),
+                $form_data['image'],
+                ($form_data['highlight']) ? 1 : 0,
+                $album_id_insert_image,
+                1
+            );
+            $query_insert_image->execute();
+        } catch (\PDOException $ex) {
+            print_r($ex->getMessage());
+            die();
         }
     }
 }
@@ -133,6 +123,7 @@ if ($success) {
 $list_cate = $db_connect->getAll('tbl_cates')->fetchAll();
 $list_subcate = $db_connect->getAll('tbl_subcates')->fetchAll();
 $subcate_option = '<option value="0">-- none --</option>';
+$form_data['highlight'] = 'checked';
 $form_data['active'] = 'checked';
 
 // show sửa:
@@ -167,11 +158,11 @@ if ($nv_Request->isset_request('change_cate', 'get')) {
 if (defined('NV_EDITOR')) {
     require_once NV_ROOTDIR . '/' . NV_EDITORSDIR . '/' . NV_EDITOR . '/nv.php';
 }
-$form_data['description'] = htmlspecialchars(nv_editor_br2nl($form_data['description']));
+$form_data['content'] = htmlspecialchars(nv_editor_br2nl($form_data['content']));
 if (defined('NV_EDITOR') and nv_function_exists('nv_aleditor')) {
-    $form_data['description'] = nv_aleditor('description', '100%', '200px', $form_data['description']);
+    $form_data['content'] = nv_aleditor('content', '100%', '200px', $form_data['content']);
 } else {
-    $form_data['description'] = '<textarea name="description" style="width:100%;height:200px">' . $form_data['description'] . '</textarea>';
+    $form_data['content'] = '<textarea name="content" style="width:100%;height:200px">' . $form_data['content'] . '</textarea>';
 }
 
 //------------------------------

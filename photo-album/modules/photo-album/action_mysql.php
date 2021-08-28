@@ -33,7 +33,8 @@ $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $lang . "_
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `name` varchar(255) NOT NULL,
 `alias` varchar(255) NOT NULL,
-`description` varchar(255) NULL DEFAULT 'Chưa có nội dung.',
+`description` text,
+`content` text NULL,
 `cate_id` smallint(4) NOT NULL DEFAULT '0',
 `subcate_id` smallint(4) NOT NULL DEFAULT '0',
 `weight` int(11) NOT NULL DEFAULT '0',
@@ -51,13 +52,14 @@ $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $lang . "_
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
 `name` varchar(255) NOT NULL,
 `path` varchar(255) NOT NULL,
+`highlight` tinyint(1) NOT NULL DEFAULT '0',
 `album_id` int(11) NOT NULL DEFAULT '0',
 `active` tinyint(2) NOT NULL DEFAULT '1',
 `created_at` int(11) NOT NULL DEFAULT '0',
 `updated_at` int(11) NOT NULL DEFAULT '0',
 PRIMARY KEY (`id`),
 UNIQUE KEY `name` (`name`),
-UNIQUE KEY `path` (`path`),
+KEY `path` (`path`),
 KEY `album_id` (`album_id`)
 )ENGINE=MyISAM  DEFAULT CHARSET=utf8";
 

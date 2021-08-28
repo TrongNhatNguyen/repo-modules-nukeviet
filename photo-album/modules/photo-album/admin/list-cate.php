@@ -82,8 +82,18 @@ if ($nv_Request->isset_request('form_submit', 'post')) {
 // xoá:
 if ($nv_Request->isset_request('action_del', 'get')) {
     if ($get_data['id_edit'] > 0 && md5($get_data['id_edit'] . NV_CHECK_SESSION) == md5($get_data['checksess'])) {
+        $cate_del = $db_connect->getBy("tbl_cates", "id = " . $get_data['id_edit'])->fetch();
         try {
-            $result = $db_connect->delCate($get_data['id_edit']);
+            $db_connect->delCate($get_data['id_edit']);
+
+            // cập nhật lại weight:
+            $list_behind = $db_connect->getBy("tbl_cates", "weight > " . $cate_del['weight'], ["order_by" => "weight ASC"])->fetchAll();
+            $new_weight = $cate_del['weight'];
+            foreach ($list_behind as $key => $behind) {
+                $query_update_new_weight = $db_connect->updateWeight("tbl_cates", $behind['id'], $new_weight);
+                $query_update_new_weight->execute();
+                $new_weight ++;
+            }
         } catch (\PDOException $ex) {
             print_r($ex->getMessage());
             die();
@@ -167,8 +177,8 @@ try {
     $query_select = $db_connect->getAll("tbl_cates", ["order_by" => "weight ASC", "limit" => $perpage, "offset" => ($page - 1) * $perpage]);
     while ($cate = $query_select->fetch()) {
         $cate['active'] = ($cate['active'] == 1) ? 'checked' : '';
-        $cate['created_at'] = gmdate("d-m-Y\ H:i:s", $cate['created_at']);
-        $cate['updated_at'] = ($cate['updated_at'] != 0) ? gmdate("d-m-Y\ H:i:s", $cate['updated_at']) : '';
+        $cate['created_at'] = date("d-m-Y\ H:i A", $cate['created_at']);
+        $cate['updated_at'] = ($cate['updated_at'] != 0) ? date("d-m-Y\ H:i A", $cate['updated_at']) : '';
 
         $list_cate[$cate['id']] = $cate;
     }
@@ -221,9 +231,11 @@ if ($list_cate) {
     }
 
     // phân trang:
-    $paginate = nv_generate_page($url . "list-cate", $totals, $perpage, $page);
-    $paginate_html = '<div class="clearfix pull-right">' . $paginate . '</div><div class="clearfix"></div>';
-    $xtpl->assign('PAGINATE', $paginate_html);
+    if ($perpage < $totals) {
+        $paginate = nv_generate_page($url . "list-cate", $totals, $perpage, $page);
+        $paginate_html = '<div class="clearfix pull-right">' . $paginate . '</div><div class="clearfix"></div>';
+        $xtpl->assign('PAGINATE', $paginate_html);
+    }
 } else {
     $notify_empty = '<div class="alert alert-info" role="alert">' . $lang_module['notify_empty'] . '</div>';
     $xtpl->assign('NOTIFY_EMPTY', $notify_empty);

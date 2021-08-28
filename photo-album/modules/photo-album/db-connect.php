@@ -12,7 +12,7 @@ class DBConnect
     private $db;
     private $sql;
     private $name_prefix_lang_module;
-    private $tb_ablum;
+    private $tb_album;
     private $tb_image;
     private $tb_cate;
     private $tb_subcate;
@@ -23,7 +23,7 @@ class DBConnect
 
         $this->db = $db;
         $this->name_prefix_lang_module = NV_PREFIXLANG . "_" . $module_data . "_";
-        $this->tb_ablum = 'tbl_albums';
+        $this->tb_album = 'tbl_albums';
         $this->tb_image = 'tbl_images';
         $this->tb_cate = 'tbl_cates';
         $this->tb_subcate = 'tbl_subcates';
@@ -135,41 +135,44 @@ class DBConnect
     // ALBUM TABLE connect
     //========================================
     //--insert
-    function insertAlbum($name, $alias, $description = null, $cate_id, $subcate_id, $active = 0, $created_at = NV_CURRENTTIME)
+    function insertAlbum($name, $alias, $description, $content = null, $cate_id, $subcate_id, $active = 0, $created_at = NV_CURRENTTIME)
     {
-        $max_weight = $this->getMaxValue($this->tb_album, "weight");
+        $num_rows = $this->countNumRows($this->tb_album);
         
-        $this->sql = "INSERT INTO `" . $this->name_prefix_lang_module . $this->tb_ablum . "` (
+        $this->sql = "INSERT INTO `" . $this->name_prefix_lang_module . $this->tb_album . "` (
                         `id`,
                         `name`,
                         `alias`,
                         `description`,
+                        `content`,
                         `cate_id`,
                         `subcate_id`,
                         `weight`,
                         `active`,
                         `created_at`
                     )
-                    VALUES (NULL, :name, :alias, :description, :cate_id, :subcate_id, :weight, :active, :created_at);";
+                    VALUES (NULL, :name, :alias, :description, :content, :cate_id, :subcate_id, :weight, :active, :created_at);";
         $stmt = $this->db->prepare($this->sql);
         $stmt->bindParam('name', $name);
         $stmt->bindParam('alias', $alias);
         $stmt->bindParam('description', $description);
+        $stmt->bindParam('content', $content);
         $stmt->bindValue('cate_id', $cate_id);
         $stmt->bindValue('subcate_id', $subcate_id);
-        $stmt->bindValue('weight', $max_weight + 1);
+        $stmt->bindValue('weight', $num_rows + 1);
         $stmt->bindValue('active', $active);
         $stmt->bindValue('created_at', $created_at);
         return $stmt;
     }
 
     //--update
-    function updateAlbum($id_edit, $name, $alias, $description = null, $cate_id, $subcate_id, $active = 0, $updated_at = NV_CURRENTTIME)
+    function updateAlbum($id_edit, $name, $alias, $description, $content = null, $cate_id, $subcate_id, $active = 0, $updated_at = NV_CURRENTTIME)
     {
-        $this->sql = "UPDATE `" . $this->name_prefix_lang_module . $this->tb_ablum . "` SET
+        $this->sql = "UPDATE `" . $this->name_prefix_lang_module . $this->tb_album . "` SET
                         `name`=:name,
                         `alias`=:alias,
                         `description`=:description,
+                        `content`=:content,
                         `cate_id`=:cate_id,
                         `subcate_id`=:subcate_id,
                         `active`=:active,
@@ -180,6 +183,7 @@ class DBConnect
         $stmt->bindParam('name', $name);
         $stmt->bindParam('alias', $alias);
         $stmt->bindParam('description', $description);
+        $stmt->bindParam('content', $content);
         $stmt->bindValue('cate_id', $cate_id);
         $stmt->bindValue('subcate_id', $subcate_id);
         $stmt->bindValue('active', $active);
@@ -190,7 +194,7 @@ class DBConnect
     //-- del
     function delAlbum($id)
     {
-        $this->sql = "DELETE FROM `" . $this->name_prefix_lang_module . $this->tb_ablum . "`
+        $this->sql = "DELETE FROM `" . $this->name_prefix_lang_module . $this->tb_album . "`
                       WHERE `id` = " . $id . ";";
         return $this->db->query($this->sql);
     }
@@ -198,20 +202,22 @@ class DBConnect
     //========================================
     // IMAGE TABLE connect
     //========================================
-    function insertImage($name, $path, $album_id, $active = 0, $created_at = NV_CURRENTTIME)
+    function insertImage($name, $path, $highlight, $album_id, $active = 0, $created_at = NV_CURRENTTIME)
     {
         $this->sql = "INSERT INTO `" . $this->name_prefix_lang_module . $this->tb_image . "` (
                         `id`,
                         `name`,
                         `path`,
+                        `highlight`,
                         `album_id`,
                         `active`,
                         `created_at`
                     )
-                    VALUES (NULL, :name, :path, :album_id, :active, :created_at);";
+                    VALUES (NULL, :name, :path, :highlight, :album_id, :active, :created_at);";
         $stmt = $this->db->prepare($this->sql);
         $stmt->bindParam('name', $name);
         $stmt->bindParam('path', $path);
+        $stmt->bindValue('highlight', $highlight);
         $stmt->bindValue('album_id', $album_id);
         $stmt->bindValue('active', $active);
         $stmt->bindValue('created_at', $created_at);
@@ -219,11 +225,12 @@ class DBConnect
     }
 
     //--update
-    function updateImage($id_edit, $name, $path, $album_id, $active = 0, $updated_at = NV_CURRENTTIME)
+    function updateImage($id_edit, $name, $path, $highlight, $album_id, $active = 0, $updated_at = NV_CURRENTTIME)
     {
         $this->sql = "UPDATE `" . $this->name_prefix_lang_module . $this->tb_image . "` SET
                         `name`=:name,
                         `path`=:path,
+                        `highlight`=:highlight,
                         `album_id`=:album_id,
                         `active`=:active,
                         `updated_at`=:updated_at
@@ -232,6 +239,7 @@ class DBConnect
         $stmt = $this->db->prepare($this->sql);
         $stmt->bindParam('name', $name);
         $stmt->bindParam('path', $path);
+        $stmt->bindValue('highlight', $highlight);
         $stmt->bindValue('album_id', $album_id);
         $stmt->bindValue('active', $active);
         $stmt->bindValue('updated_at', $updated_at);
@@ -252,7 +260,7 @@ class DBConnect
     //-- insert:
     function insertCate($name, $alias, $active = 0, $created_at = NV_CURRENTTIME)
     {
-        $max_weight = $this->getMaxValue($this->tb_cate, "weight");
+        $num_rows = $this->countNumRows($this->tb_cate);
         
         $this->sql = "INSERT INTO `" . $this->name_prefix_lang_module . $this->tb_cate . "` (
                         `id`,
@@ -266,7 +274,7 @@ class DBConnect
         $stmt = $this->db->prepare($this->sql);
         $stmt->bindParam('name', $name);
         $stmt->bindParam('alias', $alias);
-        $stmt->bindValue('weight', $max_weight + 1);
+        $stmt->bindValue('weight', $num_rows + 1);
         $stmt->bindValue('active', $active);
         $stmt->bindValue('created_at', $created_at);
         return $stmt;
@@ -304,7 +312,7 @@ class DBConnect
     //-- insert:
     function insertSubcate($name, $alias, $cate_id, $active = 0, $created_at = NV_CURRENTTIME)
     {
-        $max_weight = $this->getMaxValue($this->tb_subcate, "weight");
+        $num_rows = $this->countNumRows($this->tb_subcate);
 
         $this->sql = "INSERT INTO `" . $this->name_prefix_lang_module . $this->tb_subcate . "` (
                         `id`,
@@ -320,7 +328,7 @@ class DBConnect
         $stmt->bindParam('name', $name);
         $stmt->bindParam('alias', $alias);
         $stmt->bindValue('cate_id', $cate_id);
-        $stmt->bindValue('weight', $max_weight + 1);
+        $stmt->bindValue('weight', $num_rows + 1);
         $stmt->bindValue('active', $active);
         $stmt->bindValue('created_at', $created_at);
         return $stmt;

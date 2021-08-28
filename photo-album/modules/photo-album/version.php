@@ -14,7 +14,9 @@ if (!defined('NV_ADMIN') or !defined('NV_MAINFILE')) {
 
 $module_version = array(
     'name' => 'Photo Album',
-    'modfuncs' => 'main',
+    'modfuncs' => 'main, detail',
+    'change_alias' => 'main, detail',
+    'submenu' => 'main',
     'is_sysmod' => 0,
     'virtual' => 1,
     'version' => '4.4.01',
@@ -22,9 +24,11 @@ $module_version = array(
     'author' => 'hugonhatnguyen (nguyentrongnhat230600@gmail.com)',
     'note' => '',
     'uploads_dir' => array(
+        $module_name,
         $module_upload,
     ),
     'assets_dir' => array(
+        $module_name,
         $module_upload,
     )
 );

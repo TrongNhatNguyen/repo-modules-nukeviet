@@ -25,8 +25,11 @@ $lang_module['not_found'] = 'Thật tiếc!!! Chủ đề bạn cần tìm khôn
 $lang_module['warning'] = 'Bài viết này đang ở trạng thái <strong>Ngưng hoạt động</strong>, chỉ người quản trị mới có thể nhìn thấy';
 //---------------------------
 
-$lang_module['main_submenu'] = 'Đây là submenu Demoo Main'; // // ở các func ở block, submenu
-$lang_module['main_title'] = 'Đây là tiêu đề Demoo Main'; // ở tiêu đề
+$lang_module['add'] = 'Danh sách album'; // // ở các func ở block, submenu MAIN
 
-$lang_module['config_submenu'] = 'Đây là submenu Demoo Config'; // ở các func ở block, submenu
-$lang_module['config_title'] = 'Đây là tiêu đề Demoo Config'; // ở tiêu đề
+// icon:
+$icon_inf = '<i class="fa fa-info fa-lg" aria-hidden="true"></i>&nbsp; ';
+$icon_err = '<i class="fa fa-exclamation-circle fa-lg" aria-hidden="true"></i>&nbsp; ';
+$icon_succ = '<i class="fa fa-check fa-lg" aria-hidden="true"></i>&nbsp; ';
+
+$lang_module['notify_empty'] = $icon_inf . 'Không có thông tin nào gửi đến bạn!';

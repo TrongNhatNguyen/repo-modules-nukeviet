@@ -74,16 +74,6 @@ class Rules
     }
 
     //========================================
-    // valid form insert image
-    //========================================
-    function insImageRules($fields)
-    {
-        if ($this->db_connect->getBy("tbl_images", "path LIKE '" . $fields . "'", ["order_by" => "id DESC"])->fetch()) {
-            $error = $this->lang_module['valid_image_exist_name'];
-        }
-    }
-
-    //========================================
     // valid form insert Cate
     //========================================
     function insCateRules(array $fields)

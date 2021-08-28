@@ -16,6 +16,7 @@ $page_title = $lang_module['add']; // hiển thị tiêu đề module
 //------------------------------
 // Viết code xử lý chung vào đây
 //------------------------------
+$get_data = array();
 $db_connect = new DBConnect();
 
 // lấy dl từ url:
@@ -25,8 +26,19 @@ $get_data['checksess'] = $nv_Request->get_title('checksess', 'get', '');
 // xoá:
 if ($nv_Request->isset_request('action_del', 'get')) {
     if ($get_data['id'] > 0 && md5($get_data['id'] . NV_CHECK_SESSION) == md5($get_data['checksess'])) {
+        $album_del = $db_connect->getBy("tbl_albums", "id = " . $get_data['id'])->fetch();
+
         try {
-            $result = $db_connect->delAlbum($get_data['id']);
+            $db_connect->delAlbum($get_data['id']);
+
+            // cập nhật lại weight:
+            $list_behind = $db_connect->getBy("tbl_albums", "weight > " . $album_del['weight'], ["order_by" => "weight ASC"])->fetchAll();
+            $new_weight = $album_del['weight'];
+            foreach ($list_behind as $key => $behind) {
+                $query_update_new_weight = $db_connect->updateWeight("tbl_albums", $behind['id'], $new_weight);
+                $query_update_new_weight->execute();
+                $new_weight ++;
+            }
         } catch (\PDOException $ex) {
             print_r($ex->getMessage());
             die();
@@ -96,8 +108,8 @@ try {
         $album['cate'] = $db_connect->getBy("tbl_cates", "id = " . $album['cate_id'])->fetch();
         $album['subcate'] = $db_connect->getBy("tbl_subcates", "id = " . $album['subcate_id'])->fetch();
         $album['active'] = ($album['active'] == 1) ? 'checked' : '';
-        $album['created_at'] = gmdate("d-m-Y\ H:i:s", $album['created_at']);
-        $album['updated_at'] = ($album['updated_at'] != 0) ? gmdate("d-m-Y\ H:i:s", $album['updated_at']) : '';
+        $album['created_at'] = date('d-m-Y\ H:i A', $album['created_at']);
+        $album['updated_at'] = ($album['updated_at'] != 0) ? date("d-m-Y\ H:i A", $album['updated_at']) : '';
 
         $list_album[$album['id']] = $album;
     }
@@ -119,10 +131,9 @@ $xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
 $xtpl->assign('NV_OP_VARIABLE', NV_OP_VARIABLE);
 $xtpl->assign('NV_CHECK_SESSION', NV_CHECK_SESSION);
 $xtpl->assign('MODULE_NAME', $module_name);
+$xtpl->assign('OP', $op);
 
 //-- xuất biến:
-$xtpl->assign('', $op);
-
 if ($list_album) {
     $url = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=";
     
@@ -140,9 +151,11 @@ if ($list_album) {
     }
 
     // phân trang:
-    $paginate = nv_generate_page($url . "main", $totals, $perpage, $page);
-    $paginate_html = '<div class="clearfix pull-right">' . $paginate . '</div><div class="clearfix"></div>';
-    $xtpl->assign('PAGINATE', $paginate_html);
+    if ($perpage < $totals) {
+        $paginate = nv_generate_page($url . "main", $totals, $perpage, $page);
+        $paginate_html = '<div class="clearfix pull-right">' . $paginate . '</div><div class="clearfix"></div>';
+        $xtpl->assign('PAGINATE', $paginate_html);
+    }
 } else {
     $notify_empty = '<div class="alert alert-info" role="alert">' . $lang_module['notify_empty'] . '</div>';
     $xtpl->assign('NOTIFY_EMPTY', $notify_empty);
