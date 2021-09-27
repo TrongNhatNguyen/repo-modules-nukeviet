@@ -62,12 +62,10 @@
                     <!-- END: loop_slider -->
                 </div>
                 <div id="tab-evaluate" class="panel-body tab-pane fade"><br>
-                    <h3>Menu 1</h3>
-                    <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                    <p>{LANG.evaluate_content}</p>
                 </div>
                 <div id="tab-instruct" class="panel-body tab-pane fade"><br>
-                    <h3>Menu 2</h3>
-                    <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
+                    <p>{LANG.instruct_content}</p>
                 </div>
             </div>
         </div>

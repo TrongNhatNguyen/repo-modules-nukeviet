@@ -43,7 +43,9 @@ $lang_module['currency'] = ['VNĐ', 'USD'];
 // -----[ detail.tpl ]-----------------------
 $lang_module['contents'] = 'Mô tả chi tiết';
 $lang_module['evaluate'] = 'Đánh giá';
+$lang_module['evaluate_content'] = 'Sản phẩm này hiện chưa có đánh giá nào.';
 $lang_module['instruct'] = 'Hướng dẫn';
+$lang_module['instruct_content'] = 'Bấm vào liên hệ để có thể đăng ký sở hữu sản phẩm mới nhất của chúng tôi.';
 $lang_module['contact_now'] = 'Liên Hệ Ngay Bây Giờ';
 $lang_module['show_more'] = 'Xem Thêm Sản Phẩm Khác';
 $lang_module['relate_prod'] = 'Sản phẩm liên quan';
