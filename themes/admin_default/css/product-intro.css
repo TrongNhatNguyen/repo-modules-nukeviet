@@ -1,0 +1,120 @@
+.small-title {
+    display: block;
+    margin-top: 3px;
+    font-size: smaller;
+}
+
+.small-title:hover {
+    text-decoration: none;
+}
+
+.css-active {
+    margin-top: 6px;
+    margin-left: 40%;
+}
+
+tr > td {
+    vertical-align: middle !important;
+}
+
+.w110 {
+    width: 110px !important;
+}
+.w160 {
+    width: 160px !important;
+}
+.w170 {
+    width: 170px !important;
+}
+.pdt-checkbox {
+    padding-top: 7px;
+}
+.w-image{
+    max-width: 100px;
+}
+
+/*============= hiển thị cột mô tả */
+.desc {
+    color: rgb(56, 56, 56);
+    cursor: pointer;
+}
+.desc:hover .text-collapse {
+    color: rgb(13, 55, 192);
+}
+.text-collapse {
+    height: 35px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.text-expand {
+    display: block;
+    white-space: nowrap;
+}
+
+
+/*=========== zoom ảnh sweetalert2 */
+.swal-wide{
+    width:620px !important;
+}
+
+/*========== nút checkbox */
+.switch {
+    position: relative;
+    display: inline-block;
+    top: -3px;
+    left: 1px;
+    width: 52px;
+    height: 25px;
+}
+
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-transition: .4s;
+    transition: .4s;
+    background-color:#dfdfdf;
+    border-radius: 23px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 23px;
+    width: 23px;
+    left: 1px;
+    bottom: 1px;
+    border-radius: 50%;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #20c997;
+}
+
+input:focus + .slider {
+    box-shadow: -1px -1px -1px #20c997;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+.swal-wide{
+    width:620px !important;
+}
